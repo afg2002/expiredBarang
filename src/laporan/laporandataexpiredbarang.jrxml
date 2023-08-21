@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="4e5e3ffe-b5c5-4e0f-b82a-d368780b5882">
+	<property name="ireport.zoom" value="1.4641000000000008"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="24"/>
+	<style name="Title" fontName="Times New Roman" fontSize="50" isBold="true" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#736343" fontName="Arial" fontSize="18"/>
+	<style name="Column header" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
+	<style name="Detail" fontName="Arial" fontSize="12"/>
+	<style name="Row" mode="Transparent">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style backcolor="#E6DAC3"/>
+		</conditionalStyle>
+	</style>
+	<queryString>
+		<![CDATA[SELECT be.id_expiredBarang, be.id_barang, b.nama_barang, be.tanggal_expired, be.jumlah
+FROM barang_expired AS be
+JOIN barang AS b ON be.id_barang = b.id_barang;]]>
+	</queryString>
+	<field name="id_expiredBarang" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="id_barang" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nama_barang" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="tanggal_expired" class="java.sql.Date">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="jumlah" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="167" splitType="Stretch">
+			<staticText>
+				<reportElement style="Title" x="125" y="49" width="430" height="51" uuid="82eaf09c-216a-4101-bffa-724442df7921"/>
+				<textElement verticalAlignment="Middle">
+					<font size="20" pdfFontName="Times-Roman"/>
+				</textElement>
+				<text><![CDATA[Sistem Informasi Monitoring Expired Barang]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="176" y="136" width="258" height="22" uuid="f3a31a9a-87f6-4c38-a31f-9a1cb5eb27c0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LAPORAN DATA EXPIRED BARANG]]></text>
+			</staticText>
+			<line>
+				<reportElement x="194" y="156" width="194" height="1" uuid="6b12f272-f705-4b2b-925f-996c806c7d15"/>
+			</line>
+			<image>
+				<reportElement x="12" y="36" width="100" height="100" uuid="21f3a247-32b4-4a69-92eb-63867beff0f7"/>
+				<imageExpression><![CDATA["logo.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="17" splitType="Stretch">
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="15" width="555" height="1" uuid="c49124b0-0cf3-4905-b283-f951ae464f0f"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="51" y="2" width="61" height="13" uuid="043705e0-4461-4b83-b8ca-9a2996246145"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[ID Expired]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="121" y="2" width="54" height="13" uuid="50c9df0b-8263-4482-b097-5ed6d2ea69d9"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[ID Barang]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="199" y="2" width="100" height="13" uuid="696fc6fa-2921-4e13-b01b-2578eebf730b"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nama Barang]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="305" y="2" width="100" height="13" uuid="ef9ba8c8-a0b6-4b03-a4bb-05c8d7866163"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tgl Expired ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="416" y="0" width="100" height="16" uuid="75a01601-be62-4f5f-9731-f6ccdecdc372"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Jumlah]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="19" splitType="Stretch">
+			<textField>
+				<reportElement x="51" y="0" width="61" height="19" uuid="cb162756-803b-4407-b775-cd38a3140f6a"/>
+				<textFieldExpression><![CDATA[$F{id_expiredBarang}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="121" y="0" width="55" height="19" uuid="72245d2d-82a9-4a14-9630-08caaa2e24f2"/>
+				<textFieldExpression><![CDATA[$F{id_barang}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="199" y="1" width="100" height="18" uuid="b88c93fb-f57e-4561-bcae-a374c0bafd6d"/>
+				<textFieldExpression><![CDATA[$F{nama_barang}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="305" y="0" width="100" height="19" uuid="cb513c68-18a3-4ff0-a86e-b0ba14729710"/>
+				<textFieldExpression><![CDATA[$F{tanggal_expired}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="416" y="1" width="100" height="18" uuid="77f55a3a-339a-4909-8b61-930e5a669bde"/>
+				<textFieldExpression><![CDATA[$F{jumlah}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="185" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="25" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="-21" y="1" width="597" height="24" forecolor="#D0B48E" backcolor="#F2EBDF" uuid="9b17435f-9a9b-41ac-9a07-5f76edd01a17"/>
+				<textField evaluationTime="Report">
+					<reportElement style="Column header" x="517" y="0" width="40" height="20" forecolor="#736343" uuid="62083318-ca19-43e1-80f8-c6090eafb2d4"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Column header" x="437" y="0" width="80" height="20" forecolor="#736343" uuid="47490ec8-9b16-4310-86a5-dbeca1222b68"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>
