@@ -29,11 +29,11 @@ public class Login extends javax.swing.JFrame {
     public Login() {
         initComponents();
         // Mengambil gambar dari package assets
-        ClassLoader classLoader = getClass().getClassLoader();
-        Image logoImage = Toolkit.getDefaultToolkit().getImage(classLoader.getResource("assets/logo.png"));
-        
+//        ClassLoader classLoader = getClass().getClassLoader();
+//        Image logoImage = Toolkit.getDefaultToolkit().getImage(classLoader.getResource("assets/logo.png"));
+//        
         // Mengatur gambar ke label
-        jLabel8.setIcon(new javax.swing.ImageIcon(logoImage));
+//        jLabel8.setIcon(new javax.swing.ImageIcon(logoImage));
         
     }
 
@@ -70,6 +70,8 @@ public class Login extends javax.swing.JFrame {
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Sistem  Informasi Monitoring Barang");
 
+        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/logo.png"))); // NOI18N
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -97,7 +99,7 @@ public class Login extends javax.swing.JFrame {
                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
-                .addContainerGap(289, Short.MAX_VALUE))
+                .addContainerGap(189, Short.MAX_VALUE))
         );
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
