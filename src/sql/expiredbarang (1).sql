@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Aug 21, 2023 at 01:32 AM
+-- Generation Time: Aug 22, 2023 at 12:25 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -32,7 +32,6 @@ CREATE TABLE `barang` (
   `id_supplier` int DEFAULT NULL,
   `nama_barang` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `stok` int NOT NULL,
-  `harga` decimal(10,2) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -40,9 +39,9 @@ CREATE TABLE `barang` (
 -- Dumping data for table `barang`
 --
 
-INSERT INTO `barang` (`id_barang`, `id_supplier`, `nama_barang`, `stok`, `harga`, `created_at`) VALUES
-(1, 1, 'Barang Apple', 10, 100.00, '2023-08-20 13:05:23'),
-(7, 3, 'test', 2, 2500.00, '2023-08-20 16:53:44');
+INSERT INTO `barang` (`id_barang`, `id_supplier`, `nama_barang`, `stok`, `created_at`) VALUES
+(9, 1, 'yayaya', 255, '2023-08-22 10:46:27'),
+(10, 1, 'yayaya', 255, '2023-08-22 10:52:17');
 
 -- --------------------------------------------------------
 
@@ -53,18 +52,8 @@ INSERT INTO `barang` (`id_barang`, `id_supplier`, `nama_barang`, `stok`, `harga`
 CREATE TABLE `barang_expired` (
   `id_expiredBarang` int NOT NULL,
   `id_barang` int DEFAULT NULL,
-  `tanggal_expired` date DEFAULT NULL,
-  `jumlah` int DEFAULT NULL
+  `tanggal_expired` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `barang_expired`
---
-
-INSERT INTO `barang_expired` (`id_expiredBarang`, `id_barang`, `tanggal_expired`, `jumlah`) VALUES
-(1, 1, '2023-08-23', 2),
-(3, 1, '2023-08-07', 233),
-(4, 1, '2023-08-03', 233);
 
 -- --------------------------------------------------------
 
@@ -149,13 +138,13 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `barang`
 --
 ALTER TABLE `barang`
-  MODIFY `id_barang` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_barang` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `barang_expired`
 --
 ALTER TABLE `barang_expired`
-  MODIFY `id_expiredBarang` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_expiredBarang` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `supplier`

@@ -141,12 +141,8 @@ public class ExpiredBarang extends javax.swing.JFrame {
     
      
      public ExpiredBarang() {
-    initComponents();
-    datatable();
-   
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().add(jScrollPane1, BorderLayout.CENTER);
-        pack();
+        initComponents();
+        datatable();
 }
      
 
@@ -324,7 +320,7 @@ public class ExpiredBarang extends javax.swing.JFrame {
                             .addComponent(btnDelete)
                             .addComponent(btnReset)))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(87, Short.MAX_VALUE))
+                .addContainerGap(169, Short.MAX_VALUE))
         );
 
         pack();
