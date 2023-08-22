@@ -30,12 +30,15 @@ public class Barang extends javax.swing.JFrame {
     
     
     protected void datatable() {
-        Object[] Baris = {"id_barang", "id_supplier","nama_supplier", "nama_barang", "stok", "harga"};
+        Object[] Baris = {"id_barang", "id_supplier","nama_supplier", "nama_barang", "stok","tgl_input", "tgl_masuk"};
         tabmode = new DefaultTableModel(null, Baris);
         tabBarang.setModel(tabmode);
 
-        String sql = "SELECT barang.id_barang, barang.id_supplier, supplier.nama_supplier, barang.nama_barang, barang.stok, barang.harga "
-                + "FROM barang INNER JOIN supplier ON barang.id_supplier = supplier.id_supplier";
+        String sql = "SELECT barang.id_barang, barang.id_supplier, supplier.nama_supplier, barang.nama_barang, "
+            + "barang.stok, barang.created_at, barang_expired.tanggal_expired  "
+            + "FROM barang INNER JOIN supplier ON barang.id_supplier = supplier.id_supplier "
+            + "INNER JOIN barang_expired  ON barang.id_barang = barang_expired.id_barang";
+
 
         try {
             Statement stat = conn.createStatement();
@@ -46,9 +49,9 @@ public class Barang extends javax.swing.JFrame {
                 String namaSupplier = res.getString("nama_supplier");
                 String namaBarang = res.getString("nama_barang");
                 String stok = res.getString("stok");
-                String harga = res.getString("harga");
-
-                String[] data = {idBarang, idSupplier, namaSupplier, namaBarang, stok, harga};
+                String created_at =  res.getString("created_at");
+                String tanggal_expired =  res.getString("tanggal_expired");
+                String[] data = {idBarang, idSupplier, namaSupplier, namaBarang, stok, created_at,tanggal_expired};
                 tabmode.addRow(data);
             }
         } catch (SQLException ex) {
@@ -96,7 +99,6 @@ public class Barang extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         txtNamaBarang = new javax.swing.JTextField();
         txtIdBarang = new javax.swing.JTextField();
-        jButton5 = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
@@ -105,10 +107,10 @@ public class Barang extends javax.swing.JFrame {
         txtNamaSupplier = new javax.swing.JComboBox<>();
         jLabel6 = new javax.swing.JLabel();
         txtStok = new javax.swing.JTextField();
-        txtHarga = new javax.swing.JTextField();
-        jLabel7 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabBarang = new javax.swing.JTable();
+        jLabel7 = new javax.swing.JLabel();
+        txtTglExpired = new com.toedter.calendar.JDateChooser();
 
         jRadioButton1.setText("jRadioButton1");
 
@@ -149,8 +151,6 @@ public class Barang extends javax.swing.JFrame {
             }
         });
 
-        jButton5.setText("Cetak");
-
         btnSave.setText("Save");
         btnSave.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -189,14 +189,6 @@ public class Barang extends javax.swing.JFrame {
             }
         });
 
-        txtHarga.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtHargaActionPerformed(evt);
-            }
-        });
-
-        jLabel7.setText("Harga");
-
         tabBarang.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -214,6 +206,8 @@ public class Barang extends javax.swing.JFrame {
             }
         });
         jScrollPane1.setViewportView(tabBarang);
+
+        jLabel7.setText("Tgl Expired");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -236,7 +230,7 @@ public class Barang extends javax.swing.JFrame {
                             .addComponent(txtNamaBarang)
                             .addComponent(txtNamaSupplier, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(txtStok)
-                            .addComponent(txtHarga)))
+                            .addComponent(txtTglExpired, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnSave)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -246,9 +240,7 @@ public class Barang extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnReset)))
                 .addGap(84, 84, 84)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton5)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 607, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 607, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(53, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -258,6 +250,7 @@ public class Barang extends javax.swing.JFrame {
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
                             .addComponent(txtIdBarang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -274,19 +267,17 @@ public class Barang extends javax.swing.JFrame {
                             .addComponent(jLabel6)
                             .addComponent(txtStok, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel7)
-                            .addComponent(txtHarga, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
+                            .addComponent(txtTglExpired, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(20, 20, 20)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnSave)
                             .addComponent(btnUpdate)
                             .addComponent(btnDelete)
                             .addComponent(btnReset)))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton5)
-                .addContainerGap(122, Short.MAX_VALUE))
+                .addContainerGap(150, Short.MAX_VALUE))
         );
 
         pack();
@@ -305,13 +296,18 @@ public class Barang extends javax.swing.JFrame {
         int idSupplier = supplierMap.get(namaSupplier); // Mendapatkan ID supplier dari HashMap
         String namaBarang = txtNamaBarang.getText();
         int stok = Integer.parseInt(txtStok.getText());
-        BigDecimal harga = new BigDecimal(txtHarga.getText());
+        java.sql.Date tanggalExpired = new java.sql.Date(txtTglExpired.getDate().getTime());
 
-        String[] columns = {"id_supplier", "nama_barang", "stok", "harga"};
-        Object[] values = {idSupplier, namaBarang, stok, harga};
+        String[] columns = {"id_supplier", "nama_barang", "stok"};
+        
+        Object[] values = {idSupplier, namaBarang, stok};
+        
 
         try {
-            db.insertData(conn, "barang", columns, values);
+            int idBarang = db.insertDataAndGetLastId(conn, "barang", columns, values);
+            String[] columns2 = {"id_barang", "tanggal_expired"};
+            Object[] valuesBarangExpired = {idBarang, tanggalExpired};
+            db.insertData(conn, "barang_expired", columns2, valuesBarangExpired);
             JOptionPane.showMessageDialog(this, "Barang berhasil ditambahkan");
             datatable(); // Panggil metode untuk mengisi ulang JTable barang
             reset();
@@ -321,34 +317,34 @@ public class Barang extends javax.swing.JFrame {
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-         int selectedRow = tabBarang.getSelectedRow();
-            if (selectedRow != -1) {
-                int idBarang = (int) tabBarang.getValueAt(selectedRow, 0); // Ganti indeks kolom sesuai dengan tabel Anda
-                String namaSupplier = (String) txtNamaSupplier.getSelectedItem();
-                int idSupplier = supplierMap.get(namaSupplier); // Mendapatkan ID supplier dari HashMap
+        int selectedRow = tabBarang.getSelectedRow();
+        if (selectedRow != -1) {
+            String idBarang = tabBarang.getValueAt(selectedRow, 0).toString(); // Convert to String
+            String namaSupplier = (String) txtNamaSupplier.getSelectedItem();
+            int idSupplier = supplierMap.get(namaSupplier); // Mendapatkan ID supplier dari HashMap
 
-                String namaBarang = txtNamaBarang.getText();
-                int stok = Integer.parseInt(txtStok.getText());
-                BigDecimal harga = new BigDecimal(txtHarga.getText());
+            String namaBarang = txtNamaBarang.getText();
+            int stok = Integer.parseInt(txtStok.getText());
 
-                String[] columns = {"id_supplier", "nama_barang", "stok", "harga"};
-                Object[] values = {idSupplier, namaBarang, stok, harga};
+            String[] columns = {"id_supplier", "nama_barang", "stok"};
+            Object[] values = {idSupplier, namaBarang, stok};
 
-                try {
-                    db.updateData(conn, "barang", columns, values, "id_barang = " + idBarang);
-                    JOptionPane.showMessageDialog(this, "Barang berhasil diperbarui");
-                    datatable();
-                    reset();
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(this, "Gagal memperbarui barang");
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Pilih data yang akan diperbarui");
+            try {
+                db.updateData(conn, "barang", columns, values, "id_barang = " + idBarang);
+                JOptionPane.showMessageDialog(this, "Barang berhasil diperbarui");
+                datatable();
+                reset();
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Gagal memperbarui barang");
             }
+        } else {
+            JOptionPane.showMessageDialog(this, "Pilih data yang akan diperbarui");
+        }
+
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        int idBarang = Integer.parseInt(txtIdBarang.getText());
+        String idBarang = txtIdBarang.getText();
         int confirm = JOptionPane.showConfirmDialog(this, "Apakah Anda yakin ingin menghapus data ini?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             try {
@@ -357,7 +353,11 @@ public class Barang extends javax.swing.JFrame {
                 datatable();
                 reset();
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Gagal menghapus barang");
+                if (ex instanceof SQLIntegrityConstraintViolationException) {
+                    JOptionPane.showMessageDialog(this, "Gagal menghapus barang: Barang ini masih digunakan dalam tabel barang_expired. Hapus data barang_expired terlebih dahulu.");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Gagal menghapus barang: " + ex.getMessage());
+                }
             }
         }
     }//GEN-LAST:event_btnDeleteActionPerformed
@@ -369,10 +369,6 @@ public class Barang extends javax.swing.JFrame {
     private void txtStokActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtStokActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtStokActionPerformed
-
-    private void txtHargaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtHargaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtHargaActionPerformed
     
    
     private void tabBarangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabBarangMouseClicked
@@ -383,12 +379,10 @@ public class Barang extends javax.swing.JFrame {
         String namaSupplier = tabBarang.getValueAt(selectedRow, 2).toString();
         String namaBarang = tabBarang.getValueAt(selectedRow, 3).toString();
         String stok = tabBarang.getValueAt(selectedRow, 4).toString();
-        String harga= tabBarang.getValueAt(selectedRow, 5).toString();
         txtIdBarang.setText(idBarangStr);
         txtNamaSupplier.setSelectedItem(namaSupplier);
         txtNamaBarang.setText(namaBarang);
         txtStok.setText(stok);
-        txtHarga.setText(harga);
     }
     }//GEN-LAST:event_tabBarangMouseClicked
 
@@ -406,7 +400,6 @@ public class Barang extends javax.swing.JFrame {
     private javax.swing.JButton btnReset;
     private javax.swing.JButton btnSave;
     private javax.swing.JButton btnUpdate;
-    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -417,10 +410,10 @@ public class Barang extends javax.swing.JFrame {
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tabBarang;
-    private javax.swing.JTextField txtHarga;
     private javax.swing.JTextField txtIdBarang;
     private javax.swing.JTextField txtNamaBarang;
     private javax.swing.JComboBox<String> txtNamaSupplier;
     private javax.swing.JTextField txtStok;
+    private com.toedter.calendar.JDateChooser txtTglExpired;
     // End of variables declaration//GEN-END:variables
 }

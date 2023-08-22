@@ -86,7 +86,6 @@ public class User extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         txtUsername = new javax.swing.JTextField();
         txtIdUser = new javax.swing.JTextField();
-        jButton5 = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
@@ -153,8 +152,6 @@ public class User extends javax.swing.JFrame {
                 txtIdUserActionPerformed(evt);
             }
         });
-
-        jButton5.setText("Cetak");
 
         btnSave.setText("Save");
         btnSave.addActionListener(new java.awt.event.ActionListener() {
@@ -227,9 +224,7 @@ public class User extends javax.swing.JFrame {
                             .addComponent(txtPassword)
                             .addComponent(txtNamaLengkap))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 100, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton5)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 529, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 529, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(75, 75, 75))
         );
         layout.setVerticalGroup(
@@ -263,9 +258,7 @@ public class User extends javax.swing.JFrame {
                             .addComponent(btnUpdate)
                             .addComponent(btnDelete)
                             .addComponent(btnReset))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton5)
-                .addContainerGap(58, Short.MAX_VALUE))
+                .addContainerGap(86, Short.MAX_VALUE))
         );
 
         pack();
@@ -381,7 +374,6 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JButton btnReset;
     private javax.swing.JButton btnSave;
     private javax.swing.JButton btnUpdate;
-    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

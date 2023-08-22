@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,42 +30,46 @@ import javax.swing.table.TableColumn;
 class ExpiredRowRenderer extends DefaultTableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+    Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-        // Ambil nilai dari kolom "tanggal_expired"
-        String tanggalExpiredStr = table.getValueAt(row, 3).toString();
+    // Ambil nilai dari kolom "tanggal_expired"
+    String tanggalExpiredStr = table.getValueAt(row, 3).toString();
 
-        // Konversi tanggal_expired ke java.sql.Date
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            java.util.Date tanggalExpiredUtil = dateFormat.parse(tanggalExpiredStr);
-            java.sql.Date tanggalExpired = new java.sql.Date(tanggalExpiredUtil.getTime());
+    // Konversi tanggal_expired ke java.sql.Date
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    try {
+        java.util.Date tanggalExpiredUtil = dateFormat.parse(tanggalExpiredStr);
+        java.sql.Date tanggalExpired = new java.sql.Date(tanggalExpiredUtil.getTime());
 
-            // Pengecekan apakah tanggal_expired sudah lewat
-            java.util.Date currentDate = new java.util.Date();
-            java.util.Date threeDaysLater = new java.util.Date(currentDate.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days in milliseconds
-            java.util.Date sevenDaysLater = new java.util.Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days in milliseconds
+        // Pengecekan apakah tanggal_expired sudah lewat
+        java.util.Date currentDate = new java.util.Date();
+        java.util.Date threeMonthsLater = addMonths(currentDate, 3);
 
-            if (tanggalExpired.before(currentDate)) {
-                cellComponent.setBackground(Color.RED);
-                cellComponent.setForeground(Color.WHITE); // Untuk kontras teks pada latar merah
-            } else if (tanggalExpired.before(threeDaysLater)) {
-                // Within 3 days from expiration
-                cellComponent.setBackground(Color.PINK);
-                cellComponent.setForeground(Color.BLACK); // Set teks menjadi hitam untuk kontras
-            } else if (tanggalExpired.before(sevenDaysLater)) {
-                // Within 7 days from expiration
-                cellComponent.setBackground(Color.YELLOW); // Set background warna kuning muda
-                cellComponent.setForeground(Color.BLACK); // Set teks menjadi hitam untuk kontras
-            } else {
-                cellComponent.setBackground(table.getBackground());
-                cellComponent.setForeground(table.getForeground());
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (tanggalExpired.before(currentDate)) {
+            cellComponent.setBackground(Color.RED);
+            cellComponent.setForeground(Color.WHITE); // Untuk kontras teks pada latar merah
+        } else if (tanggalExpired.before(threeMonthsLater)) {
+            // Within 3 months from expiration
+            cellComponent.setBackground(Color.ORANGE); // Set background warna oranye
+            cellComponent.setForeground(Color.BLACK); // Set teks menjadi hitam untuk kontras
+        } else {
+            cellComponent.setBackground(table.getBackground());
+            cellComponent.setForeground(table.getForeground());
         }
+    } catch (ParseException e) {
+        e.printStackTrace();
+    }
 
-        return cellComponent;
+    return cellComponent;
+}
+
+
+    // Helper method to add months to a date
+    private java.util.Date addMonths(java.util.Date date, int months) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MONTH, months);
+        return calendar.getTime();
     }
 }
 
@@ -81,11 +86,13 @@ public class ExpiredBarang extends javax.swing.JFrame {
     
     
     protected void datatable() {
-    Object[] Baris = {"id_expired", "id_barang", "nama_barang", "tanggal_expired", "jumlah"};
+    Object[] Baris = {"id_expired", "id_barang", "nama_barang", "tanggal_expired"};
     tabmode = new DefaultTableModel(null, Baris);
     tabExpiredBarang.setModel(tabmode);
 
-    String sql = "SELECT be.id_expiredBarang, b.id_barang, b.nama_barang, be.tanggal_expired, be.jumlah FROM barang_expired AS be INNER JOIN barang AS b ON be.id_barang = b.id_barang";
+    String sql = "SELECT be.id_expiredBarang, b.id_barang, b.nama_barang,"
+            + " be.tanggal_expired FROM barang_expired AS be INNER JOIN barang "
+            + "AS b ON be.id_barang = b.id_barang";
 
     try {
         Statement stat = conn.createStatement();
@@ -95,25 +102,26 @@ public class ExpiredBarang extends javax.swing.JFrame {
             String idBarang = res.getString("id_barang");
             String namaBarang = res.getString("nama_barang");
             String tanggalExpired = res.getString("tanggal_expired");
-            String jumlahExpired = res.getString("jumlah");
 
             // Konversi tanggal_expired ke java.sql.Date
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             java.util.Date tanggalExpiredUtil = dateFormat.parse(tanggalExpired);
             java.sql.Date tanggalExpiredSql = new java.sql.Date(tanggalExpiredUtil.getTime());
 
-            // Pengecekan apakah tanggal_expired sudah lewat
-            if (tanggalExpiredSql.before(new java.util.Date())) {
+            // Pengecekan apakah tanggal_expired sudah mendekati 3 bulan
+            java.util.Calendar currentDate = java.util.Calendar.getInstance();
+            currentDate.add(java.util.Calendar.MONTH, 3); // Tambahkan 3 bulan dari tanggal sekarang
+
+            if (tanggalExpiredSql.before(currentDate.getTime())) {
                 String expiredInfo = "ID Expired: " + idExpired + "\n"
                         + "ID Barang: " + idBarang + "\n"
                         + "Nama Barang: " + namaBarang + "\n"
-                        + "Tanggal Expired: " + tanggalExpired + "\n"
-                        + "Jumlah Expired: " + jumlahExpired;
+                        + "Tanggal Expired: " + tanggalExpired + "\n";
 
-                JOptionPane.showMessageDialog(this, expiredInfo, "Barang Expired", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, expiredInfo, "Barang Mendekati Expired", JOptionPane.WARNING_MESSAGE);
             }
 
-            String[] data = {idExpired, idBarang, namaBarang, tanggalExpired, jumlahExpired};
+            String[] data = {idExpired, idBarang, namaBarang, tanggalExpired};
             tabmode.addRow(data);
         }
 
@@ -123,8 +131,8 @@ public class ExpiredBarang extends javax.swing.JFrame {
     } catch (SQLException | ParseException ex) {
         Logger.getLogger(ExpiredBarang.class.getName()).log(Level.SEVERE, null, ex);
     }
-
 }
+
 
     
      void reset(){
@@ -153,8 +161,6 @@ public class ExpiredBarang extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         txtNamaBarang = new javax.swing.JTextField();
         txtIdBarang = new javax.swing.JTextField();
-        jButton5 = new javax.swing.JButton();
-        btnSave = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
         btnReset = new javax.swing.JButton();
@@ -163,8 +169,6 @@ public class ExpiredBarang extends javax.swing.JFrame {
         btnCariBarang = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         txtTglExpired = new com.toedter.calendar.JDateChooser();
-        jLabel5 = new javax.swing.JLabel();
-        txtJumlah = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         txtIdExpiredBarang = new javax.swing.JTextField();
 
@@ -205,15 +209,6 @@ public class ExpiredBarang extends javax.swing.JFrame {
         txtIdBarang.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtIdBarangActionPerformed(evt);
-            }
-        });
-
-        jButton5.setText("Cetak");
-
-        btnSave.setText("Save");
-        btnSave.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSaveActionPerformed(evt);
             }
         });
 
@@ -265,14 +260,6 @@ public class ExpiredBarang extends javax.swing.JFrame {
 
         jLabel4.setText("Tgl Expired");
 
-        jLabel5.setText("Jumlah");
-
-        txtJumlah.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtJumlahActionPerformed(evt);
-            }
-        });
-
         jLabel6.setText("ID Expired Barang");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -284,35 +271,27 @@ public class ExpiredBarang extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnSave)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.LEADING))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txtIdBarang)
+                            .addComponent(txtNamaBarang)
+                            .addComponent(txtTglExpired, javax.swing.GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE)
+                            .addComponent(txtIdExpiredBarang))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnCariBarang))
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(btnUpdate)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnDelete)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnReset))
-                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(txtJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.LEADING))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(txtIdBarang)
-                                    .addComponent(txtNamaBarang)
-                                    .addComponent(txtTglExpired, javax.swing.GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE)
-                                    .addComponent(txtIdExpiredBarang))))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnCariBarang)))
+                        .addComponent(btnReset)))
                 .addGap(53, 53, 53)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton5)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 607, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 607, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(53, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -339,20 +318,13 @@ public class ExpiredBarang extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel4)
                             .addComponent(txtTglExpired, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel5)
-                            .addComponent(txtJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(30, 30, 30)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnSave)
                             .addComponent(btnUpdate)
                             .addComponent(btnDelete)
                             .addComponent(btnReset)))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton5)
-                .addContainerGap(103, Short.MAX_VALUE))
+                .addContainerGap(87, Short.MAX_VALUE))
         );
 
         pack();
@@ -366,25 +338,6 @@ public class ExpiredBarang extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtIdBarangActionPerformed
 
-    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        int idBarang = Integer.parseInt(txtIdBarang.getText());
-        java.sql.Date tanggalExpired = new java.sql.Date(txtTglExpired.getDate().getTime());
-        int jumlahExpired = Integer.parseInt(txtJumlah.getText());
-
-        String[] columns = {"id_barang", "tanggal_expired", "jumlah"};
-        Object[] values = {idBarang, tanggalExpired, jumlahExpired};
-
-        try {
-            db.insertData(conn, "barang_expired", columns, values);
-            JOptionPane.showMessageDialog(this, "Data barang expired berhasil ditambahkan");
-            datatable(); // Panggil metode untuk mengisi ulang JTable barang_expired
-            reset(); // Reset form input data barang_expired
-        } catch (SQLException ex) {
-            System.out.println(ex);
-            JOptionPane.showMessageDialog(this, "Gagal menambahkan data barang expired");
-        }
-    }//GEN-LAST:event_btnSaveActionPerformed
-
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
          int selectedRow = tabExpiredBarang.getSelectedRow();
 if (selectedRow != -1) {
@@ -395,10 +348,9 @@ if (selectedRow != -1) {
     int idBarang = Integer.parseInt(idBarangStr);
 
     java.sql.Date tanggalExpired = new java.sql.Date(txtTglExpired.getDate().getTime());
-    int jumlahExpired = Integer.parseInt(txtJumlah.getText());
 
     String[] columns = {"id_barang", "tanggal_expired", "jumlah"};
-    Object[] values = {idBarang, tanggalExpired, jumlahExpired};
+    Object[] values = {idBarang, tanggalExpired};
 
     try {
         db.updateData(conn, "barang_expired", columns, values, "id_expiredBarang = " + idExpired);
@@ -440,21 +392,15 @@ if (selectedRow != -1) {
             String idBarang = tabExpiredBarang.getValueAt(selectedRow, 1).toString();
             String namaBarang = tabExpiredBarang.getValueAt(selectedRow, 2).toString();
             String tanggalExpired = tabExpiredBarang.getValueAt(selectedRow, 3).toString();
-            String jumlahExpired = tabExpiredBarang.getValueAt(selectedRow, 4).toString();
             
             txtNamaBarang.setText(namaBarang);
             txtIdBarang.setText(idBarang);
             txtIdExpiredBarang.setText(idExpired);
             txtTglExpired.setDate(java.sql.Date.valueOf(tanggalExpired));
-            txtJumlah.setText(jumlahExpired);
             // Tambahkan kode untuk mengisi txtNamaSupplier, txtNamaBarang, txtStok, dan txtHarga di sini
         }
     
     }//GEN-LAST:event_tabExpiredBarangMouseClicked
-
-    private void txtJumlahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtJumlahActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtJumlahActionPerformed
 
     private void btnCariBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCariBarangActionPerformed
         String id_barang = txtIdBarang.getText();
@@ -495,14 +441,11 @@ if (selectedRow != -1) {
     private javax.swing.JButton btnCariBarang;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnReset;
-    private javax.swing.JButton btnSave;
     private javax.swing.JButton btnUpdate;
-    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JRadioButton jRadioButton1;
@@ -510,7 +453,6 @@ if (selectedRow != -1) {
     private javax.swing.JTable tabExpiredBarang;
     private javax.swing.JTextField txtIdBarang;
     private javax.swing.JTextField txtIdExpiredBarang;
-    private javax.swing.JTextField txtJumlah;
     private javax.swing.JTextField txtNamaBarang;
     private com.toedter.calendar.JDateChooser txtTglExpired;
     // End of variables declaration//GEN-END:variables

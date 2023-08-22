@@ -63,6 +63,39 @@ public class database {
         }
     }
     
+        public int insertDataAndGetLastId(Connection connection, String tableName, String[] columns, Object[] values) throws SQLException {
+        StringBuilder sbColumns = new StringBuilder();
+        StringBuilder sbValues = new StringBuilder();
+
+        for (int i = 0; i < columns.length; i++) {
+            if (i > 0) {
+                sbColumns.append(", ");
+                sbValues.append(", ");
+            }
+            sbColumns.append(columns[i]);
+            sbValues.append("?");
+        }
+
+        String sql = "INSERT INTO " + tableName + " (" + sbColumns.toString() + ") VALUES (" + sbValues.toString() + ")";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            for (int i = 0; i < values.length; i++) {
+                statement.setObject(i + 1, values[i]);
+            }
+
+            statement.executeUpdate();
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1); // Return the generated ID
+                } else {
+                    throw new SQLException("Failed to get generated ID.");
+                }
+            }
+        }
+    }
+
+    
      public  void updateData(Connection connection, String tableName, String[] columns, Object[] values, String condition) throws SQLException {
         StringBuilder sbColumns = new StringBuilder();
         
